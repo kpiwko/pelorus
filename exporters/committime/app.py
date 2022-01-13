@@ -16,7 +16,7 @@ from prometheus_client.core import REGISTRY
 
 import pelorus
 
-REQUIRED_CONFIG = ["GIT_USER", "GIT_TOKEN"]
+REQUIRED_CONFIG = {"Git": ["GIT_USER", "GIT_TOKEN"]}
 
 
 class GitFactory:

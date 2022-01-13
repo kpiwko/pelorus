@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 import pytz
-from collector_base import AbstractFailureCollector, TrackerIssue
+from failure.collector_base import AbstractFailureCollector, TrackerIssue
 from jira import JIRA
 
 import pelorus
@@ -13,20 +13,61 @@ class JiraFailureCollector(AbstractFailureCollector):
     Jira implementation of a FailureCollector
     """
 
-    def __init__(self, user, apikey, server, projects):
-        super().__init__(server, user, apikey)
-        self.projects = projects
+    def __init__(
+        self,
+        server,
+        user,
+        token,
+        jql,
+        projects,
+        types,
+        priorities,
+        age,
+    ):
+        super().__init__(server)
+        if jql is not None:
+            logging.debug(
+                "Provided JQL query jql={}, ignoring values of projects={}, types={}, priorities={} and age={}".format(
+                    jql, projects, types, priorities, age
+                )
+            )
+
+        else:
+            jql = "type IN ({}) AND priority IN ({})".format(types, priorities)
+            if projects is not None:
+                jql = "project IN ({}) AND ".format(projects) + jql
+            if age is not None:
+                jql = jql + " AND updated >= {}".format(str(age))
+            logging.debug("Constructed JQL query '{}'".format(jql))
+
+        self.jql = jql
+
+        self.basic_auth = None
+        self.token_auth = None
+        if user is not None:
+            logging.debug("Using Basic Auth to access JIRA at {}".format(self.server))
+            self.basic_auth = (user, token)
+        elif token is not None:
+            logging.debug(
+                "Using JIRA Access Token to access JIRA at {}".format(self.server)
+            )
+            self.token_auth = token
+        else:
+            msg = "Need to provide either user and apikey or token to authenticate"
+            logging.error(msg)
+            raise ValueError(msg)
 
     def search_issues(self):
+        # TODO FIXME This may need to be modified to allow setting up API/Agile API details and custom certs
         options = {"server": self.server}
         # Connect to Jira
-        jira = JIRA(options, basic_auth=(self.user, self.apikey))
-        # TODO FIXME This may need to be modified to suit needs and have a time period.
-        query_string = "type=bug and priority=highest"
-        if self.projects is not None:
-            query_string = query_string + " and project in (" + self.projects + ")"
-        jira = JIRA(options, basic_auth=(self.user, self.apikey))
-        jira_issues = jira.search_issues(query_string)
+        jira = None
+        if self.basic_auth is not None:
+            jira = JIRA(options, basic_auth=self.basic_auth)
+        else:
+            jira = JIRA(options, token_auth=self.token_auth)
+
+        jira_issues = jira.search_issues(self.jql, maxResults=False)
         critical_issues = []
         for issue in jira_issues:
             logging.debug(issue)

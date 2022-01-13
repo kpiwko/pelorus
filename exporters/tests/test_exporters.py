@@ -1,5 +1,6 @@
 import pytest
 from committime.collector_base import CommitMetric
+from failure.collector_jira import JiraFailureCollector
 
 import pelorus
 
@@ -86,3 +87,11 @@ def test_malformed_git_url(malformed_url):
     metric.name = test_name
     with pytest.raises(ValueError):
         metric.repo_url = malformed_url
+
+
+@pytest.mark.parametrize(
+    "jql, projects, types, priorities, age", [(None, None, None, None, None)]
+)
+def test_jira_exporter_jql(jql, projects, types, priorities, age):
+    collector = JiraFailureCollector(jql, projects, types, priorities, age)
+    assert collector.jql == "test"

@@ -44,10 +44,13 @@ def test_get_prod_label():
 
 
 def test_missing_configs():
-    configs = ["VAR1", "VAR2"]
+    configs = {"key": ["VAR1", "VAR2"], "key2": ["VAR1", "VAR3"]}
     assert pelorus.missing_configs(configs)
     os.environ["VAR1"] = "value"
     os.environ["VAR2"] = "value"
+    assert not pelorus.missing_configs(configs)
+    del os.environ["VAR2"]
+    os.environ["VAR3"] = "value"
     assert not pelorus.missing_configs(configs)
 
 

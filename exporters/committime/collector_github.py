@@ -4,7 +4,7 @@ import requests
 
 import pelorus
 
-from .collector_base import AbstractCommitCollector
+from committime.collector_base import AbstractCommitCollector
 
 
 class GitHubCommitCollector(AbstractCommitCollector):

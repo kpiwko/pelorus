@@ -30,7 +30,9 @@ class ServiceNowFailureCollector(AbstractFailureCollector):
         else:
             self.app_name_field = os.environ.get("APP_FIELD")
         self.page_size = 100
-        super().__init__(server, user, apikey)
+        self.user = user
+        self.apikey = apikey
+        super().__init__(server)
 
     def search_issues(self):
         # Connect to ServiceNow

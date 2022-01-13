@@ -14,6 +14,8 @@ DEFAULT_LOG_DATE_FORMAT = "%m-%d-%Y %H:%M:%S"
 DEFAULT_GIT = "github"
 DEFAULT_TLS_VERIFY = "True"
 DEFAULT_TRACKER = "jira"
+DEFAULT_JIRA_TYPES = "Bug"
+DEFAULT_JIRA_PRIORITIES = "Highest"
 DEFAULT_TRACKER_APP_LABEL = "unknown"
 DEFAULT_TRACKER_APP_FIELD = "u_application"
 
@@ -74,12 +76,33 @@ def get_prod_label():
     return os.getenv("PROD_LABEL", DEFAULT_PROD_LABEL)
 
 
-def missing_configs(vars):
-    missing_configs = False
-    for var in vars:
-        if var not in os.environ:
-            logging.error("Missing required environment variable '%s'." % var)
-            missing_configs = True
+"""Validates environment variables. 
+
+At least one value in set must be present or a specific defined by key value must be present
+"""
+
+
+def missing_configs(sets, key=None):
+
+    # limit configuration
+    if key is not None and sets.get(key) is not None:
+        sets = {key: sets[key]}
+
+    for setKey in sets:
+        missing_configs = False
+        for var in sets[setKey]:
+            if var not in os.environ:
+                logging.error(
+                    "{}: Missing required environment variable '{}'.".format(
+                        str(setKey), var
+                    )
+                )
+                missing_configs = True
+        if missing_configs is False:
+            logging.debug(
+                "Found all environment variables needed for {}".format(str(setKey))
+            )
+            return missing_configs
 
     return missing_configs
 

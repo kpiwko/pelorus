@@ -12,11 +12,9 @@ class AbstractFailureCollector(pelorus.AbstractPelorusExporter):
     This class should be extended for the system which contains the failure records.
     """
 
-    def __init__(self, server, user, apikey):
+    def __init__(self, server):
         """Constructor"""
         self.server = server
-        self.user = user
-        self.apikey = apikey
 
     def collect(self):
         creation_metric = GaugeMetricFamily(
