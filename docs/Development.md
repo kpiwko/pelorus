@@ -179,7 +179,7 @@ Most of us use Visual Studio Code to do our python development. The following ex
         ext install ms-python.python
    
 
-Code also comes with a nice debugger feature. Here is a starter configuration to use with our exporters. Just create a file called `.vscode/launch.json` in your `pelorus/` project directory with the following content.
+VSCode also comes with a nice debugger feature. Here is a starter configuration to use with our exporters. Just create a file called `.vscode/launch.json` in your `pelorus/` project directory with the following content.
 
 ```json
 {
@@ -231,6 +231,19 @@ Code also comes with a nice debugger feature. Here is a starter configuration to
 ```
 
 For more information, see the [Debugging](https://code.visualstudio.com/docs/editor/debugging) doc in VS Code.
+
+In case you see errors related to imports in VSCode, you can fix that by defining path to Python interpreter `Ctrl-Shift-P` and `Preferences: Open Workspace Settings (JSON)`.
+Here is an example file in case you are using `venv` as suggested:
+
+```json
+{
+    "python.formatting.provider": "black",
+    "python.defaultInterpreterPath": "<projectpath>/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "<projectpath>/.venv/lib/python3.9/site-packages"
+    ]
+}
+```
 
 ## Testing Pull Requests
 
